@@ -1,2 +1,2 @@
 #!/bin/bash
-sed -n 0~ N p
+NR % 1 == 1
