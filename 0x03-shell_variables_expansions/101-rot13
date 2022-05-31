@@ -1,2 +1,2 @@
 #!/bin/bash
-alias rot13= tr "[a-z]" "[A-Z]" 
+alias rot13= tr "[n-m]" "[N-M]" 
