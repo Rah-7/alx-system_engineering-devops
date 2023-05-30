@@ -11,7 +11,7 @@ On a whiteboard, design a one server web infrastructure that hosts the website t
 Requirements:
 
 You must use:
-*1 server
+* 1 server
 * 1 web server (Nginx)
 * 1 application server
 * 1 application files (your code base)
