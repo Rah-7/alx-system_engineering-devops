@@ -1,26 +1,25 @@
-#!/usr/bin/env bash
-# sets up a new 404 error page
-sudo apt-get update
-sudo apt-get install -y nginx 
-echo "Hello World!" > index.html
-sudo mv index.html /var/www/html
-
-
-echo "Ceci n'est pas une page" > 404.html
-sudo mv 404.html /var/www/html
-echo "server {
-   listen 80 default_server;
-   listen [::]:80 default_server;
+   #!/usr/bin/env bash
    
-   root /var/www/html;
-   index index.html;
-   location /redirect_me {
-      return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;
-   }
-   error_page 404 /404.html;
-   location = /404.html{
-      internal;
-   }
-}" > default
-sudo mv -f default /etc/nginx/sites-available/default
-sudo service nginx restart
+   # Update package index
+   sudo apt-get update
+   
+   # Install nginx server
+   sudo apt-get -y install nginx
+   
+   # Open default configuration file in a text editor
+   sudo nano /etc/nginx/sites-available/default
+   
+   # Add error page configuration
+   echo "error_page 404 /404.html;" | sudo tee -a /etc/nginx/sites-available/default > /dev/null
+   echo "location = /404.html {" | sudo tee -a /etc/nginx/sites-available/default > /dev/null
+   echo "    internal;" | sudo tee -a /etc/nginx/sites-available/default > /dev/null
+   echo "    root /home/$(whoami)/;" | sudo tee -a /etc/nginx/sites-available/default > /dev/null
+   echo "    echo \"Ceci n'est pas une page\";" | sudo tee -a /etc/nginx/sites-available/default > /dev/null
+   echo "}" | sudo tee -a /etc/nginx/sites-available/default > /dev/null
+   
+   # Restart nginx
+   sudo killall -s HUP nginx
+   
+   # Verify that the 404 page is working correctly
+   curl -s -I http://localhost/non-existent-page | grep "HTTP/1.1 404 Not Found"
+   curl -s http://localhost/non-existent-page
