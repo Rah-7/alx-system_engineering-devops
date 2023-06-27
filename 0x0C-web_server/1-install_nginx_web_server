@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+# Update package index
+sudo apt-get update
+
+# Install nginx server
+sudo apt-get -y install nginx
+
+# Check if nginx is installed and running
+nginx_status=$(systemctl status nginx | grep "Active:" | awk '{print $2}')
+if [[ "$nginx_status" == "inactive" ]]; then
+    sudo service nginx start
+fi
+
+# Configure nginx to listen on port 80
+sudo sed -i "s/listen\s*80;/listen 80 default_server;/g" /etc/nginx/sites-available/default
+
+# Restart Nginx
+sudo killall -s HUP nginx 
+
+# Create a sample index.html file with Hello World! content
+sudo echo "Hello World!" > /var/www/html/index.html
+
+# Verify that Nginx is returning an index.html file with the text "Hello World!" when queried at the root ("/") using curl
+curl_command_output=$(curl -s http://localhost/)
+if [[ "$curl_command_output" != *"Hello World!"* ]]; then
+    echo "Web server is not configured properly. Exiting..."
+    exit 1
+fi
