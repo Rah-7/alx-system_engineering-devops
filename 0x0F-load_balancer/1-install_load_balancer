@@ -17,4 +17,4 @@ frontend proxynode
         default_backend web-backend
 " >> /etc/haproxy/haproxy.cfg
 
-sudo service haproxy restar
+sudo service haproxy restart
