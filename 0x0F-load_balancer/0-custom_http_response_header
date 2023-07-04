@@ -1,31 +1,23 @@
 #!/usr/bin/env bash
-# install nginx server and configure it to port 80, set the redirect_me page, 404 not found page and the X-served-By header
+# Installs and setup haproxy
 
-sudo apt update
-sudo apt install -y nginx
-sudo ufw allow 'Nginx HTTP'
-echo "Hello World!" | sudo tee /var/www/html/index.html
-# OR
-# echo "Hello World!" > index.html
-# sudo mv index.html /var/www/html
+apt-get install -y software-properties-common
+add-apt-repository -y ppa:vbernat/haproxy-1.8
+apt-get -y update
+apt-get install -y haproxy=1.8.\*
 
-echo "Ceci n'est pas une page" > 404.html
-sudo mv 404.html /var/www/html
-echo "server {
-        listen 80 default_server;
-        listen [::]:80 default_server;
-        add_header X-Served-By $HOSTNAME;
-        root /var/www/html;
-        index index.html;
-        location /redirect_me {
-                return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;
-        }
+echo "ENABLED=1" > /etc/default/haproxy
 
-        error_page 404 /404.html;
-        location = /404.html{
-        internal;
-        }
-}" > default
+# Listen to web1 and web2 servers                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+echo "
+   listen load_balancer
+   bind *:80
+   mode http
+   balance roundrobin
+   option httpclose
+   option forwardfor
+   server 64198-web-01 34.203.77.117 :80 check
+   server 64198-web-01 52.3.249.111 :80 check
+" >> /etc/haproxy/haproxy.cfg
 
-sudo mv -f default /etc/nginx/sites-available/default
-sudo service nginx restart
+service haproxy start
