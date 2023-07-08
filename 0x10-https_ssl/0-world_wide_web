@@ -1,22 +1,21 @@
-#!/usr/bin/env bash
-# A script that displays domain dns informations for a domain
-domaininfo () {
-	answer_section=$(dig "$1" | grep -A1 'ANSWER SECTION' | tail -n 1)
-
-	subdomain=$(echo "$answer_section" | awk '{print $1;}' FS=.) 
-	record_type=$(echo "$answer_section" | awk '{print $4;}')
-	ip_address=$(echo "$answer_section" | awk '{print $5}')
-
-	echo "The subdomain $subdomain is a $record_type record and points to $ip_address" 
-}
-
-if [ $# -eq 1 ]
-then
-	domaininfo "www.$1" 
-	domaininfo "lb-01.$1"
-	domaininfo "web-01.$1"
-	domaininfo "web-02.$1"
-elif [ $# -eq 2 ]
-then
-	domaininfo "$2.$1"
-fi
+  #!/usr/bin/env bash
+   
+   function audit_subdomain {
+       local domain=$1
+       local sub=$2
+       local record=$(dig +short $sub.$domain | head -n1)
+       local type=$(dig $sub.$domain | awk '/^'$sub.$domain'\./ {print $4}')
+       printf "The subdomain %s is a %s record and points to %s\n" "$sub" "$type" "$record"
+   }
+   
+   # Main
+   domain=$1
+   if [[ -n $2 ]]; then
+       sub=$2
+       audit_subdomain "$domain" "$sub"
+   else
+       audit_subdomain "$domain" www
+       audit_subdomain "$domain" lb-01
+       audit_subdomain "$domain" web-01
+       audit_subdomain "$domain" web-02
+   fi
